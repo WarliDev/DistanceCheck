@@ -1,0 +1,9 @@
+## Interface: 91000
+## Version: 1
+## Title: DistanceCheck
+## Author: Warli
+## SavedVariables: DistanceCheckSettings
+
+utils.lua
+main.lua
+
