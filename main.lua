@@ -1,3 +1,5 @@
+--Hello there!
+
 local defaults = {
    sessions = 0,
    unit = "meters",
