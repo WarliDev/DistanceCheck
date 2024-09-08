@@ -1,5 +1,3 @@
---Hello there!
-
 local defaults = {
    sessions = 0,
    unit = "meters",
@@ -27,7 +25,7 @@ f:RegisterEvent("ADDON_LOADED")
 f:SetScript("OnEvent", OnEvent)
 
 utils = _G.utils
-local posY1, posX1, posY2, posX2 = 0
+local posY1, posX1, posZ1, posY2, posX2, posZ2 = 0
 local has_begun_a_check = false
 local has_a_waypoint = false
 local DistanceWithWaypoint = 0
@@ -52,8 +50,8 @@ local function Round(num)
   return num + (2^52 + 2^51) - (2^52 + 2^51)
 end
 
-local function DistanceCheck(x1, y1, x2, y2)
-   distance = ((x1 - x2) ^ 2 + (y1 - y2) ^ 2) ^ 0.5
+local function DistanceCheck(x1, y1, z1, x2, y2, z2)
+   distance = ((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2) ^ 0.5
    return distance
 end
 
@@ -96,28 +94,29 @@ SlashCmdList["DIS"] = function(msg)
    if args.length == 0 then
       if not has_begun_a_check then
          has_begun_a_check = true
-         posY1, posX1, _, _ = UnitPosition("player")
+         posY1, posX1, posZ1, _ = C_Epsilon.GetPosition("player")
          UIValue(0)
          UIShow(true)
       elseif has_a_waypoint then
          has_begun_a_check = false
          UIShow(false)
-         ChatDistanceMsg(DistanceCheck(posX1, posY1, posX2, posY2) + DistanceWithWaypoint)
+         ChatDistanceMsg(DistanceCheck(posX1, posY1, posZ1, posX2, posY2, posZ2) + DistanceWithWaypoint)
          has_a_waypoint = false
          DistanceWithWaypoint = 0
       else
          has_begun_a_check = false
          UIShow(false)
-         ChatDistanceMsg(DistanceCheck(posX1, posY1, posX2, posY2))
+         ChatDistanceMsg(DistanceCheck(posX1, posY1, posZ1, posX2, posY2, posZ2))
       end
    elseif args[0] == "waypoint" then
       if has_begun_a_check then
          has_a_waypoint = true
-         posY3, posX3, _, _ = UnitPosition("player")
-         DistanceWithWaypoint = DistanceWithWaypoint + DistanceCheck(posX1, posY1, posX3, posY3)
+         posY3, posX3, posZ3, _ = C_Epsilon.GetPosition("player")
+         DistanceWithWaypoint = DistanceWithWaypoint + DistanceCheck(posX1, posY1, posZ1, posX3, posY3, posZ3)
          posX1 = posX3
          posY1 = posY3
-         posY3, posX3 = nil
+         posZ1 = posY3
+         posY3, posX3, posZ3 = nil
       else
          print("DistanceCheck - No active distance check!")
       end
@@ -136,11 +135,11 @@ local loop_frame = CreateFrame("Frame")
 loop_frame:SetScript("OnUpdate", function(self, elapsed)
    if has_begun_a_check then
       if has_a_waypoint then
-         posY2, posX2, _, _ = UnitPosition("player")
-         UIValue(DistanceCheck(posX1, posY1, posX2, posY2) + DistanceWithWaypoint)
+         posY2, posX2, posZ2, _, _ = C_Epsilon.GetPosition("player")
+         UIValue(DistanceCheck(posX1, posY1, posZ1, posX2, posY2, posZ2) + DistanceWithWaypoint)
       else
-         posY2, posX2, _, _ = UnitPosition("player")
-         UIValue(DistanceCheck(posX1, posY1, posX2, posY2))
+         posY2, posX2, posZ2, _, _ = C_Epsilon.GetPosition("player")
+         UIValue(DistanceCheck(posX1, posY1, posZ1, posX2, posY2, posZ2))
       end
    end
 end)
